@@ -9,9 +9,7 @@ MIN_BALANCE = 1
     def top_up(amount)
         if @balance + amount > MAX_BALANCE then raise "Balance exceeds maximum amount (#{MAX_BALANCE})" else @balance = @balance + amount end
     end
-    def deduct(amount)
-        @balance = @balance - amount
-    end
+    
     def touch_in(balance)
         if balance < MIN_BALANCE then raise "Balance is below minimum amount (#{MIN_BALANCE})" else @in_use = true end
     end
@@ -20,5 +18,11 @@ MIN_BALANCE = 1
     end
     def touch_out
         @in_use = false
+        deduct(MIN_BALANCE)
+    end
+    
+private 
+    def deduct(amount)
+        @balance = @balance - amount
     end
 end

@@ -10,9 +10,6 @@ describe Oystercard do
     it 'given balance exceeds 90 when topping up then raise error' do
         expect{oystercard.top_up(100)}.to raise_error(RuntimeError)
     end
-    it 'given balance 0 when deducting then the new balance is negative top up amount' do
-        expect(oystercard.deduct(10)).to eq -10
-    end
 
     context 'given a positive balance' do
         before(:each) do
@@ -28,9 +25,13 @@ describe Oystercard do
             expect(oystercard.in_use).to be false
             expect(oystercard.in_journey?).to be false
         end
+        it 'given touched in when touching out then deduct min fare' do
+            expect {oystercard.touch_out}.to change{oystercard.balance}.by(-Oystercard::MIN_BALANCE)
+        end
     end
 
     it 'given touch in when below minimum balance then raise error' do
         expect{oystercard.touch_in(oystercard.balance)}.to raise_error(RuntimeError)
     end
+
 end
