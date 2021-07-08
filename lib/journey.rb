@@ -10,5 +10,6 @@ class Journey
   def end_journey(exit_station)
     @exit_station = exit_station
     @current_journey[:exit_station] = @exit_station
+    @entry_station = nil
   end
 end

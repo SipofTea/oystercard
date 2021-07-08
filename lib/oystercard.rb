@@ -2,7 +2,7 @@ require 'journey'
 
 # This class deals with the oystercard functionality
 class Oystercard
-  attr_reader :balance, :in_use, :entry_station, :exit_station, :journey_history, :current_journey
+  attr_reader :balance, :journey_history, :journey
 
   MAX_BALANCE = 90
   MIN_BALANCE = 1
@@ -19,19 +19,17 @@ class Oystercard
   def touch_in(entry_station)
     raise "Balance is below minimum amount (#{MIN_BALANCE})" if @balance < MIN_BALANCE
 
-    @entry_station = entry_station
-    @current_journey = { entry_station: @entry_station }
+    @journey = Journey.new
+    @journey.start_journey(entry_station)
   end
 
   def in_journey?
-    !!entry_station
+    !!@journey.entry_station
   end
 
   def touch_out(exit_station)
-    @entry_station = nil
-    @exit_station = exit_station
-    @current_journey[:exit_station] = @exit_station
-    @journey_history << @current_journey
+    @journey.end_journey(exit_station)
+    @journey_history << journey.current_journey
     deduct(MIN_BALANCE)
   end
 

@@ -20,7 +20,9 @@ describe Journey do
       it 'when exiting station then record exit station' do
         expect(journey.exit_station).to eq exit_station
       end
-
+      it 'then entry station is nil' do
+        expect(journey.entry_station).to be_nil
+      end
       it 'when exiting station then record current journey' do
         expect(journey.current_journey).to eq({ entry_station: entry_station, exit_station: exit_station })
       end

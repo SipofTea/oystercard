@@ -25,9 +25,6 @@ describe Oystercard do
       oystercard.top_up(10)
       oystercard.touch_in(entry_station)
     end
-    it 'then remember entry station' do
-      expect(oystercard.entry_station).to eq entry_station
-    end
     it 'then in journey' do
       expect(oystercard.in_journey?).to be true
     end
@@ -39,14 +36,8 @@ describe Oystercard do
       it 'then not in journey' do
         expect(oystercard.in_journey?).to be false
       end
-      it 'then entry station is nil' do
-        expect(oystercard.entry_station).to be_nil
-      end
       it 'then deduct min fare' do
         expect { oystercard.touch_out(exit_station) }.to change { oystercard.balance }.by(-Oystercard::MIN_BALANCE)
-      end
-      it 'then remember exit station' do
-        expect(oystercard.exit_station).to eq exit_station
       end
       it 'then remembers journey' do
         expect(oystercard.journey_history).to eq [{ entry_station: entry_station, exit_station: exit_station }]
