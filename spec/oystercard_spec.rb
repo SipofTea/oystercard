@@ -19,6 +19,11 @@ describe Oystercard do
   it 'given never used when checking journey history then history is empty' do
     expect(oystercard.journey_history).to be_empty
   end
+  it 'given tapped out when tapping out then deduct penalty fare' do
+    oystercard.top_up(10)
+    oystercard.touch_out(exit_station)
+    expect(oystercard.balance).to eq 4
+  end
 
   context 'given a positive balance and touched in' do
     before(:each) do
@@ -28,7 +33,15 @@ describe Oystercard do
     it 'then in journey' do
       expect(oystercard.in_journey?).to be true
     end
-
+    it 'when touching in again then deduct penalty fare' do
+      oystercard.touch_in(entry_station)
+      expect(oystercard.balance).to eq 4
+    end
+    it 'when touching in again at new station then entry station is new station' do
+      new_station = 'New Station'
+      oystercard.touch_in(new_station)
+      expect(oystercard.journey.entry_station).to eq new_station
+    end
     context 'when touched out' do
       before(:each) do
         oystercard.touch_out(exit_station)
@@ -36,11 +49,20 @@ describe Oystercard do
       it 'then not in journey' do
         expect(oystercard.in_journey?).to be false
       end
-      it 'then deduct min fare' do
-        expect { oystercard.touch_out(exit_station) }.to change { oystercard.balance }.by(-Oystercard::MIN_BALANCE)
-      end
       it 'then remembers journey' do
         expect(oystercard.journey_history).to eq [{ entry_station: entry_station, exit_station: exit_station }]
+      end
+      it 'then deduct minimum fare (1)' do
+        expect(oystercard.balance).to eq 9
+      end
+      it 'given one complete journey and touched in when touching in then apply penalty fare (6)' do
+        oystercard.touch_in(entry_station)
+        oystercard.touch_in(entry_station)
+        expect(oystercard.balance).to eq 3
+      end
+      it 'given one complete journey and touched out when touching out then apply penalty fare (6)' do
+        oystercard.touch_out(entry_station)
+        expect(oystercard.balance).to eq 3
       end
     end
   end

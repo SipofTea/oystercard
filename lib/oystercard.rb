@@ -17,20 +17,31 @@ class Oystercard
   end
 
   def touch_in(entry_station)
+    finish_journey unless @journey.nil?
     raise "Balance is below minimum amount (#{MIN_BALANCE})" if @balance < MIN_BALANCE
 
+    start_new_journey(entry_station)
+  end
+
+  def start_new_journey(entry_station)
     @journey = Journey.new
     @journey.start_journey(entry_station)
   end
 
+  def finish_journey
+    deduct(journey.fare)
+    @journey_history << @journey.current_journey
+    @journey = nil
+  end
+
   def in_journey?
-    !!@journey.entry_station
+    !!@journey
   end
 
   def touch_out(exit_station)
+    @journey = Journey.new if @journey.nil?
     @journey.end_journey(exit_station)
-    @journey_history << journey.current_journey
-    deduct(MIN_BALANCE)
+    finish_journey
   end
 
   private
