@@ -1,15 +1,16 @@
-require './lib/journey'
+require_relative 'journey'
+require_relative 'journey_log'
 
 # This class deals with the oystercard functionality
 class Oystercard
-  attr_reader :balance, :journey_history, :journey
+  attr_reader :balance, :journey_log
 
   MAX_BALANCE = 90
   MIN_BALANCE = 1
 
   def initialize
     @balance = 0
-    @journey_history = []
+    @journey_log = JourneyLog.new(Journey)
   end
 
   def top_up(amount)
@@ -17,31 +18,23 @@ class Oystercard
   end
 
   def touch_in(entry_station)
-    finish_journey unless @journey.nil?
+    deduct(@journey_log.journey.fare) unless @journey_log.journey.nil?
     raise "Balance is below minimum amount (#{MIN_BALANCE})" if @balance < MIN_BALANCE
 
-    start_new_journey(entry_station)
-  end
-
-  def start_new_journey(entry_station)
-    @journey = Journey.new
-    @journey.start_journey(entry_station)
-  end
-
-  def finish_journey
-    deduct(journey.fare)
-    @journey_history << @journey.current_journey
-    @journey = nil
+    @journey_log.start(entry_station)
   end
 
   def in_journey?
-    !!@journey
+    !!@journey_log.journey
   end
 
   def touch_out(exit_station)
-    @journey = Journey.new if @journey.nil?
-    @journey.end_journey(exit_station)
-    finish_journey
+    if in_journey?
+      @journey_log.finish(exit_station)
+      deduct(@journey_log.journeys.last.fare)
+    else
+      deduct(Journey::PENALTY_FARE)
+    end
   end
 
   private
