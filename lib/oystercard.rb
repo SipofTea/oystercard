@@ -1,4 +1,4 @@
-require 'journey'
+require './lib/journey'
 
 # This class deals with the oystercard functionality
 class Oystercard
